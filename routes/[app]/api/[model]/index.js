@@ -49,6 +49,9 @@ const handleGet = async (req, res) => {
     }
     const filter = generateFilter(req);
     let projections = null;
+    if (req.query.$attributes) {
+      req.query["$projections"] = req.query.$attributes;
+    }
     if (req.query.$select) {
       req.query["$projections"] = req.query.$select;
     }

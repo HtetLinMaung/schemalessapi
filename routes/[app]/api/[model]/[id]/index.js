@@ -8,6 +8,12 @@ const getById = async (req) => {
     const filter = generateFilter(req);
     filter["_id"] = req.params.id;
     let projections = null;
+    if (req.query.$attributes) {
+      req.query["$projections"] = req.query.$attributes;
+    }
+    if (req.query.$select) {
+      req.query["$projections"] = req.query.$select;
+    }
     if (req.query.$projections) {
       projections =
         req.query.$projections.includes("{") &&
