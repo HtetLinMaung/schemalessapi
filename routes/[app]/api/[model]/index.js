@@ -64,7 +64,7 @@ const handleGet = async (req, res) => {
 
     if ("$populate" in req.query) {
       const populate =
-        req.query.$populate.includes("{") && req.query.$populate.includes("}")
+        req.query.$populate.includes("[") && req.query.$populate.includes("]")
           ? JSON.parse(req.query.$populate)
           : req.query.$populate;
       cursor = cursor.populate(populate);

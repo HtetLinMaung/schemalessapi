@@ -19,14 +19,14 @@ const getById = async (req) => {
     let cursor = null;
 
     if (projections) {
-      cursor = req.Model.find(filter, projections);
+      cursor = req.Model.findOne(filter, projections);
     } else {
-      cursor = req.Model.find(filter);
+      cursor = req.Model.findOne(filter);
     }
 
     if ("$populate" in req.query) {
       const populate =
-        req.query.$populate.includes("{") && req.query.$populate.includes("}")
+        req.query.$populate.includes("[") && req.query.$populate.includes("]")
           ? JSON.parse(req.query.$populate)
           : req.query.$populate;
       cursor = cursor.populate(populate);
@@ -70,6 +70,7 @@ const handleUpdate = async (req, res) => {
   for (const [k, v] of Object.entries(req.body)) {
     data[k] = v;
   }
+  await data.save();
 
   const resBody = {
     code: 200,
