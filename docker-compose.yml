@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  schemalessapi:
+    image: htetlinmaung/schemalessapi
+    build: .
+    ports:
+      - "8080:3000"
+    environment:
+      - express_handler_mode=native
+      - route_prefix=schemalessapi
+      - db_connection=mongodb://localhost:27017/schemalessapi
