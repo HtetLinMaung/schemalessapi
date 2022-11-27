@@ -16,17 +16,20 @@ module.exports = async (req) => {
   const { model } = req.params;
 
   await connectMongoose();
-  const modelDefinition = await ModelDefinition.findOne({
-    modelName: model,
-  });
-  if (modelDefinition) {
-    const schema = new mongoose.Schema(
-      dbSchemaToSchema(modelDefinition.schema),
-      modelDefinition.options
-    );
-    for (const { fields, options } of modelDefinition.indexes) {
-      schema.index(fields, options);
+  req.Model = mongoose.models[model];
+  if (!req.Model) {
+    const modelDefinition = await ModelDefinition.findOne({
+      modelName: model,
+    });
+    if (modelDefinition) {
+      const schema = new mongoose.Schema(
+        dbSchemaToSchema(modelDefinition.schema),
+        modelDefinition.options
+      );
+      for (const { fields, options } of modelDefinition.indexes) {
+        schema.index(fields, options);
+      }
+      req.Model = mongoose.model(model, schema);
     }
-    req.Model = mongoose.models[model] || mongoose.model(model, schema);
   }
 };

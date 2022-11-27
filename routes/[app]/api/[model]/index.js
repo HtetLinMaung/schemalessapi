@@ -44,8 +44,14 @@ const handleGet = async (req, res) => {
   let pagecount = 0;
 
   if (req.Model) {
+    if (req.query.$where) {
+      req.query["$filter"] = req.query.$where;
+    }
     const filter = generateFilter(req);
     let projections = null;
+    if (req.query.$select) {
+      req.query["$projections"] = req.query.$select;
+    }
     if (req.query.$projections) {
       projections =
         req.query.$projections.includes("{") &&
@@ -62,7 +68,7 @@ const handleGet = async (req, res) => {
       cursor = req.Model.find(filter);
     }
 
-    if ("$populate" in req.query) {
+    if (req.query.$populate) {
       const populate =
         req.query.$populate.includes("[") && req.query.$populate.includes("]")
           ? JSON.parse(req.query.$populate)
@@ -70,7 +76,10 @@ const handleGet = async (req, res) => {
       cursor = cursor.populate(populate);
     }
 
-    if ("$sort" in req.query) {
+    if (req.query.$order) {
+      req.query["$sort"] = req.query.$order;
+    }
+    if (req.query.$sort) {
       cursor = cursor.sort(JSON.parse(req.query.$sort));
     }
 
