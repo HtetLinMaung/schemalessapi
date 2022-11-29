@@ -1,6 +1,7 @@
 const { brewBlankExpressFunc } = require("code-alchemy");
 const mongoose = require("mongoose");
 const setModel = require("../../../../middlewares/set-model");
+const verifyToken = require("../../../../middlewares/verify-token");
 const ModelDefinition = require("../../../../models/ModelDefinition");
 const generateFilter = require("../../../../utils/generate-filter");
 const jsonToSchema = require("../../../../utils/json-to-schema");
@@ -24,6 +25,9 @@ const handlePost = async (req, res) => {
     const schema = new mongoose.Schema(schemaBody, { timestamps: true });
     schema.index({ "$**": "text" });
     req.Model = mongoose.models[model] || mongoose.model(model, schema);
+  }
+  if (process.env.authentication_logic == "on") {
+    req.body["_user"] = req.tokenPayload.userId;
   }
   const data = req.Model(req.body || {});
   await data.save();
@@ -131,6 +135,11 @@ const handleUpdate = async (req, res) => {
     return res.status(404).json(resBody);
   }
   const filter = generateFilter(req);
+  for (const key in req.body) {
+    if (key.startsWith("_")) {
+      delete req.body[key];
+    }
+  }
   await req.Model.updateMany(
     filter,
     req.method.toLowerCase() == "put" ? req.body : { $set: req.body }
@@ -167,6 +176,12 @@ module.exports = brewBlankExpressFunc(async (req, res) => {
     const resBody = "Not Found!";
     console.log(resBody);
     return res.status(404).send(resBody);
+  }
+  if (process.env.authentication_logic == "on") {
+    const { status, json } = verifyToken(req);
+    if (status != 200) {
+      return res.status(status).json(json);
+    }
   }
   await setModel(req);
   switch (req.method.toLowerCase()) {

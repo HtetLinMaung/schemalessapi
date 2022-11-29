@@ -73,8 +73,11 @@ const handleUpdate = async (req, res) => {
     console.log(resBody);
     return res.status(404).json(resBody);
   }
+
   for (const [k, v] of Object.entries(req.body)) {
-    data[k] = v;
+    if (!k.startsWith("_")) {
+      data[k] = v;
+    }
   }
   await data.save();
 

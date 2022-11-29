@@ -10,3 +10,6 @@ services:
       - express_handler_mode=native
       - route_prefix=schemalessapi
       - db_connection=mongodb://localhost:27017/schemalessapi
+      - jwt_secret=secret
+      - jwt_expires_in=1d
+      - authentication_logic=on 

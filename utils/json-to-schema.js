@@ -1,3 +1,4 @@
+const { Schema } = require("mongoose");
 const {
   getMongooseType,
   getMongooseTypeToString,
@@ -22,6 +23,17 @@ const jsonToSchema = (json) => {
         default: null,
       };
     }
+  }
+
+  if (process.env.authentication_logic == "on") {
+    schemaBody["_user"] = {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    };
+    dbSchemaBody["_user"] = {
+      type: "Schema.Types.ObjectId",
+      ref: "User",
+    };
   }
 
   return [schemaBody, dbSchemaBody];

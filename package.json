@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "code-alchemy": "^1.1.10",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.7.3"
   },
   "devDependencies": {
