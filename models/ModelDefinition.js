@@ -20,6 +20,11 @@ const modelDefinitionSchema = new Schema(
         options: Schema.Types.Mixed,
       },
     ],
+    _user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   {
     timestamps: true,

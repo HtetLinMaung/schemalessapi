@@ -1,5 +1,6 @@
 const { brewBlankExpressFunc } = require("code-alchemy");
 const setModel = require("../../../../../middlewares/set-model");
+const verifyToken = require("../../../../../middlewares/verify-token");
 const generateFilter = require("../../../../../utils/generate-filter");
 
 const getById = async (req) => {
@@ -114,6 +115,12 @@ module.exports = brewBlankExpressFunc(async (req, res) => {
     const resBody = "Not Found!";
     console.log(resBody);
     return res.status(404).send(resBody);
+  }
+  if (process.env.authentication_logic == "on") {
+    const { status, json } = verifyToken(req);
+    if (status != 200) {
+      return res.status(status).json(json);
+    }
   }
   await setModel(req);
   switch (req.method.toLowerCase()) {

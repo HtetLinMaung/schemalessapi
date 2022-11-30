@@ -1,19 +1,19 @@
 const { Schema, model } = require("mongoose");
 
-const userSchema = new Schema(
+const scriptSchema = new Schema(
   {
-    username: {
+    scriptType: {
+      type: String,
+      enum: ["inline", "file"],
+      default: "",
+    },
+    script: {
       type: String,
       required: true,
     },
-    password: {
+    description: {
       type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      default: "inactive",
-      enum: ["inactive", "lock", "active", "suspend"],
+      default: "",
     },
     _user: {
       type: Schema.Types.ObjectId,
@@ -26,6 +26,4 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.index({ username: 1 }, { unique: true });
-
-module.exports = model("User", userSchema);
+module.exports = model("Script", scriptSchema);
