@@ -1,7 +1,5 @@
-const ModelDefinition = require("../models/ModelDefinition");
 const connectMongoose = require("../utils/connect-mongoose");
-const mongoose = require("mongoose");
-const dbSchemaToSchema = require("../utils/dbSchema-to-schema");
+const getModelFromDefinition = require("../utils/get-model-from-definition");
 
 module.exports = async (req) => {
   console.log({
@@ -16,20 +14,5 @@ module.exports = async (req) => {
   const { model } = req.params;
 
   await connectMongoose();
-  req.Model = mongoose.models[model];
-  if (!req.Model) {
-    const modelDefinition = await ModelDefinition.findOne({
-      modelName: model,
-    });
-    if (modelDefinition) {
-      const schema = new mongoose.Schema(
-        dbSchemaToSchema(modelDefinition.schema),
-        modelDefinition.options
-      );
-      for (const { fields, options } of modelDefinition.indexes) {
-        schema.index(fields, options);
-      }
-      req.Model = mongoose.model(model, schema);
-    }
-  }
+  req.Model = await getModelFromDefinition(model);
 };

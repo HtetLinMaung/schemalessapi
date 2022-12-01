@@ -66,6 +66,11 @@ exports.afterMasterProcessStart = async () => {
           enum: ["get", "post", "put", "patch", "delete"],
           default: "get",
         },
+        _user: {
+          type: "Schema.Types.ObjectId",
+          ref: "User",
+          default: null,
+        },
       },
       options: {
         timestamps: true,
@@ -86,6 +91,15 @@ exports.afterMasterProcessStart = async () => {
     await ModelDefinition({
       modelName: "Script",
       schema: {
+        name: {
+          type: "String",
+          required: true,
+          unique: true,
+        },
+        description: {
+          type: "String",
+          default: "",
+        },
         scriptType: {
           type: "String",
           enum: ["inline", "file"],
@@ -94,6 +108,11 @@ exports.afterMasterProcessStart = async () => {
         script: {
           type: "String",
           required: true,
+        },
+        _user: {
+          type: "Schema.Types.ObjectId",
+          ref: "User",
+          default: null,
         },
       },
       options: {
@@ -123,6 +142,11 @@ exports.afterMasterProcessStart = async () => {
         stage: {
           type: "Number",
           required: true,
+        },
+        _user: {
+          type: "Schema.Types.ObjectId",
+          ref: "User",
+          default: null,
         },
       },
       options: {

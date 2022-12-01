@@ -1,12 +1,21 @@
 const { brewBlankExpressFunc } = require("code-alchemy");
 const verifyToken = require("../../middlewares/verify-token");
-const Quest = require("../../models/Quest");
-const QuestScriptPivot = require("../../models/QuestScriptPivot");
-const Script = require("../../models/Script");
 const connectMongoose = require("../../utils/connect-mongoose");
 const getModelFromDefinition = require("../../utils/get-model-from-definition");
+const packageJson = require("../../package.json");
 
-Script;
+const modules = {};
+
+if (packageJson.dependencies) {
+  for (const moduleName in packageJson.dependencies) {
+    try {
+      modules[moduleName] = require(moduleName);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+}
+
 module.exports = brewBlankExpressFunc(async (req, res) => {
   console.log({
     body: req.body,
@@ -28,8 +37,11 @@ module.exports = brewBlankExpressFunc(async (req, res) => {
       return res.status(status).json(json);
     }
   }
-
   await connectMongoose();
+  const Quest = await getModelFromDefinition("Quest");
+  const QuestScriptPivot = await getModelFromDefinition("QuestScriptPivot");
+  const Script = await getModelFromDefinition("Script");
+  Script;
   const quest = await Quest.findOne(
     {
       url: {
@@ -47,36 +59,49 @@ module.exports = brewBlankExpressFunc(async (req, res) => {
     .sort({ stage: 1 })
     .populate("script");
 
-  let done = false;
   const context = {
-    getModel: getModelFromDefinition,
+    utils: {
+      getModel: getModelFromDefinition,
+    },
+    modules,
     req,
     res: {
       status: 200,
       body: null,
     },
-    done: () => {
-      done = true;
-    },
   };
 
-  const intervalId = setInterval(() => {
-    if (done) {
-      res
-        .status("status" in context.res ? context.res.status : 200)
-        .send(context.res.body);
-      clearInterval(intervalId);
-    }
-  }, 50);
-
   for (const questScript of questScripts) {
+    let result = null;
     if (questScript.script.scriptType == "inline") {
-      if (questScript.script.script.includes("async")) {
-        await eval(questScript.script.script)(context);
+      if (
+        questScript.script.script.includes("async") ||
+        questScript.script.script.includes("__awaiter")
+      ) {
+        result = await eval(questScript.script.script)(context);
       } else {
-        eval(questScript.script.script)(context);
+        result = eval(questScript.script.script)(context);
+      }
+    } else {
+      const func = require(questScript.script.script);
+      if (
+        func.toString().includes("async") ||
+        func.toString().includes("__awaiter")
+      ) {
+        result = await func(context);
+      } else {
+        result = func(context);
       }
     }
+    if (result && typeof result == "object" && !Array.isArray(result)) {
+      context.res = result;
+      break;
+    }
   }
-  done = true;
+  let cursor = res.status("status" in context.res ? context.res.status : 200);
+  if (typeof context.res.body == "object") {
+    cursor.json(context.res.body);
+  } else {
+    cursor.send(context.res.body);
+  }
 });

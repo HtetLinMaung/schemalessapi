@@ -1,3 +1,6 @@
+const { Schema } = require("mongoose");
+
+Schema;
 const dbSchemaToSchema = (json) => {
   const schemaBody = {};
   for (const [k, v] of Object.entries(json)) {

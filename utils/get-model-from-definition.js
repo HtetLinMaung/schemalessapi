@@ -12,7 +12,7 @@ module.exports = async (modelName) => {
     modelName: modelName,
   });
   if (!modelDefinition) {
-    throw new Error("Model Definition not found!");
+    return null;
   }
   const schema = new mongoose.Schema(
     dbSchemaToSchema(modelDefinition.schema),

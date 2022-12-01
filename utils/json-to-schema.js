@@ -1,18 +1,22 @@
 const { Schema } = require("mongoose");
+const getModelFromDefinition = require("./get-model-from-definition");
 const {
   getMongooseType,
   getMongooseTypeToString,
 } = require("./get-mongoose-type");
 
-const jsonToSchema = (json) => {
+const jsonToSchema = async (json) => {
   let schemaBody = {};
   let dbSchemaBody = {};
 
   for (const [k, v] of Object.entries(json)) {
     if (typeof v == "object") {
-      const [subSchemaBody, subDbSchemaBody] = jsonToSchema(v);
+      const [subSchemaBody, subDbSchemaBody] = await jsonToSchema(v);
       schemaBody[k] = subSchemaBody;
       dbSchemaBody[k] = subDbSchemaBody;
+      if ("ref" in v) {
+        await getModelFromDefinition(v.ref);
+      }
     } else {
       schemaBody[k] = {
         type: getMongooseType(v),

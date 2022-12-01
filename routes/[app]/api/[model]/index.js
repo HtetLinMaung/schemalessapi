@@ -9,7 +9,7 @@ const jsonToSchema = require("../../../../utils/json-to-schema");
 const handlePost = async (req, res) => {
   if (!req.Model) {
     const { model } = req.params;
-    const [schemaBody, dbSchemaBody] = jsonToSchema(req.body || {});
+    const [schemaBody, dbSchemaBody] = await jsonToSchema(req.body || {});
     const modelDefinition = ModelDefinition({
       schema: dbSchemaBody,
       modelName: model,

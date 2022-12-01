@@ -1,0 +1,1 @@
+exports.rootDir = __dirname;

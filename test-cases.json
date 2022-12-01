@@ -1,0 +1,9 @@
+{
+  "Get ModelDefinition from db": {
+    "type": "function",
+    "scriptPath": "/Users/htetlinmaung/Documents/projects/node/schemalessapi/utils",
+    "function": "get-model-from-definition",
+    "expect": ["'ModelDefinition'"],
+    "not.toBe": null
+  }
+}
