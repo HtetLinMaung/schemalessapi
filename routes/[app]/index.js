@@ -103,6 +103,7 @@ module.exports = brewBlankExpressFunc(async (req, res) => {
     }
   }
   let cursor = res.status("status" in context.res ? context.res.status : 200);
+  console.log(context.res.body);
   if (typeof context.res.body == "object") {
     cursor.json(context.res.body);
   } else {
