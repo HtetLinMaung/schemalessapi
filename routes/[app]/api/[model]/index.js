@@ -5,10 +5,11 @@ const verifyToken = require("../../../../middlewares/verify-token");
 const ModelDefinition = require("../../../../models/ModelDefinition");
 const generateFilter = require("../../../../utils/generate-filter");
 const jsonToSchema = require("../../../../utils/json-to-schema");
+const setSequences = require("../../../../utils/set-sequences");
 
 const handlePost = async (req, res) => {
+  const { model } = req.params;
   if (!req.Model) {
-    const { model } = req.params;
     const [schemaBody, dbSchemaBody] = await jsonToSchema(req.body || {});
     const modelDefinition = ModelDefinition({
       schema: dbSchemaBody,
@@ -29,6 +30,7 @@ const handlePost = async (req, res) => {
   if (process.env.authentication_logic == "on") {
     req.body["_user"] = req.tokenPayload.userId;
   }
+  setSequences(model, req.body);
   const data = req.Model(req.body || {});
   await data.save();
   const resBody = {

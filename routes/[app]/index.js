@@ -16,6 +16,9 @@ if (packageJson.dependencies) {
   }
 }
 
+const setImmediateAsync = async () =>
+  new Promise((resolve) => setImmediate(resolve));
+
 module.exports = brewBlankExpressFunc(async (req, res) => {
   console.log({
     body: req.body,
@@ -62,6 +65,7 @@ module.exports = brewBlankExpressFunc(async (req, res) => {
   const context = {
     utils: {
       getModel: getModelFromDefinition,
+      setImmediateAsync,
     },
     modules,
     req,

@@ -160,4 +160,124 @@ exports.afterMasterProcessStart = async () => {
       ],
     }).save();
   }
+
+  modelDefinition = await ModelDefinition.findOne({
+    modelName: "Sequence",
+  });
+  if (!modelDefinition) {
+    await ModelDefinition({
+      modelName: "Sequence",
+      schema: {
+        name: {
+          type: "String",
+          required: true,
+        },
+        format: {
+          type: "String",
+          default: "{match}{count}",
+        },
+        prefixChar: {
+          type: "String",
+          default: "0",
+        },
+        minDigitLength: {
+          type: "Number",
+          default: 1,
+        },
+        step: {
+          type: "Number",
+          default: 1,
+        },
+        start: {
+          type: "Number",
+          default: 1,
+        },
+        _user: {
+          type: "Schema.Types.ObjectId",
+          ref: "User",
+          default: null,
+        },
+      },
+      options: {
+        timestamps: true,
+      },
+      indexes: [],
+    }).save();
+  }
+
+  modelDefinition = await ModelDefinition.findOne({
+    modelName: "SequenceColumn",
+  });
+  if (!modelDefinition) {
+    await ModelDefinition({
+      modelName: "SequenceColumn",
+      schema: {
+        modelName: {
+          type: "String",
+          required: true,
+        },
+        columnName: {
+          type: "String",
+          required: true,
+        },
+        sequence: {
+          type: "Schema.Types.ObjectId",
+          ref: "Sequence",
+          required: true,
+        },
+        _user: {
+          type: "Schema.Types.ObjectId",
+          ref: "User",
+          default: null,
+        },
+      },
+      options: {
+        timestamps: true,
+      },
+      indexes: [
+        {
+          fields: { modelName: 1, columnName: 1, sequence: 1 },
+          options: { unique: true },
+        },
+      ],
+    }).save();
+  }
+
+  modelDefinition = await ModelDefinition.findOne({
+    modelName: "SequenceCount",
+  });
+  if (!modelDefinition) {
+    await ModelDefinition({
+      modelName: "SequenceColumn",
+      schema: {
+        sequence: {
+          type: "Schema.Types.ObjectId",
+          ref: "Sequence",
+          required: true,
+        },
+        match: {
+          type: "String",
+          required: true,
+        },
+        count: {
+          type: "Number",
+          default: 1,
+        },
+        _user: {
+          type: "Schema.Types.ObjectId",
+          ref: "User",
+          default: null,
+        },
+      },
+      options: {
+        timestamps: true,
+      },
+      indexes: [
+        {
+          fields: { sequence: 1, match: 1 },
+          options: { unique: true },
+        },
+      ],
+    }).save();
+  }
 };
