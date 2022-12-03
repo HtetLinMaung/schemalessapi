@@ -31,7 +31,7 @@ const handlePost = async (req, res) => {
     req.body["_user"] = req.tokenPayload.userId;
   }
   setSequences(model, req.body);
-  const data = req.Model(req.body || {});
+  const data = req.Model(req.body);
   await data.save();
   const resBody = {
     code: 200,
@@ -174,6 +174,9 @@ const handleDelete = async (req, res) => {
 };
 
 module.exports = brewBlankExpressFunc(async (req, res) => {
+  if (!req.body) {
+    req.body = {};
+  }
   if (req.params.app != process.env.route_prefix) {
     const resBody = "Not Found!";
     console.log(resBody);

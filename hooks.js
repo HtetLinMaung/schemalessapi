@@ -248,7 +248,7 @@ exports.afterMasterProcessStart = async () => {
   });
   if (!modelDefinition) {
     await ModelDefinition({
-      modelName: "SequenceColumn",
+      modelName: "SequenceCount",
       schema: {
         sequence: {
           type: "Schema.Types.ObjectId",
