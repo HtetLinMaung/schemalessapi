@@ -19,6 +19,8 @@ if (packageJson.dependencies) {
 const setImmediateAsync = async () =>
   new Promise((resolve) => setImmediate(resolve));
 
+const cacheQuestScripts = {};
+
 module.exports = brewBlankExpressFunc(async (req, res) => {
   console.log({
     body: req.body,
@@ -41,26 +43,36 @@ module.exports = brewBlankExpressFunc(async (req, res) => {
     }
   }
   await connectMongoose();
-  const Quest = await getModelFromDefinition("Quest");
-  const QuestScriptPivot = await getModelFromDefinition("QuestScriptPivot");
-  const Script = await getModelFromDefinition("Script");
-  Script;
-  const quest = await Quest.findOne(
-    {
-      url: {
-        $regex: req.path,
-      },
-      method: req.method.toLowerCase(),
-    },
-    "_id"
-  );
-  if (!quest) {
-    return res.status(404).send("Not found!");
-  }
 
-  const questScripts = await QuestScriptPivot.find({ quest: quest._id })
-    .sort({ stage: 1 })
-    .populate("script");
+  const cacheKey = JSON.stringify({
+    path: req.path,
+    method: req.method,
+  });
+  let questScripts = cacheQuestScripts[cacheKey];
+  if (!questScripts || process.env.mode == "development") {
+    const Quest = await getModelFromDefinition("Quest");
+    const QuestScriptPivot = await getModelFromDefinition("QuestScriptPivot");
+    const Script = await getModelFromDefinition("Script");
+    Script;
+    const quest = await Quest.findOne(
+      {
+        url: {
+          $regex: req.path,
+        },
+        method: req.method.toLowerCase(),
+      },
+      "_id"
+    );
+    if (!quest) {
+      return res.status(404).send("Not found!");
+    }
+
+    questScripts = await QuestScriptPivot.find({ quest: quest._id })
+      .sort({ stage: 1 })
+      .populate("script");
+
+    cacheQuestScripts[cacheKey] = questScripts;
+  }
 
   const context = {
     utils: {
